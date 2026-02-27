@@ -69,22 +69,10 @@ class ConfigScreen {
     toggleCustomLabelsSection() {
         const isCustomLabels = this.customLabelsToggle.checked;
 
-        // Show/hide note labels input
+        // Show/hide note labels input only
         const noteLabelsSection = document.getElementById('note-labels-section');
         if (noteLabelsSection) {
             noteLabelsSection.style.display = isCustomLabels ? 'block' : 'none';
-        }
-
-        // Show/hide EDO names section
-        const edoNamesSection = document.getElementById('edo-names-section');
-        if (edoNamesSection) {
-            edoNamesSection.style.display = isCustomLabels ? 'block' : 'none';
-        }
-
-        // Show/hide ratio names section
-        const ratioNamesSection = document.getElementById('ratio-names-section');
-        if (ratioNamesSection) {
-            ratioNamesSection.style.display = isCustomLabels ? 'block' : 'none';
         }
     }
 
@@ -230,9 +218,9 @@ class ConfigScreen {
             .map(label => label.trim())
             .filter(label => label.length > 0);
 
-        // Parse EDO step names
+        // Parse EDO step names (always parse if input exists)
         const edoStepNames = {};
-        if (this.customLabelsToggle.checked && this.edoNamesInput.value) {
+        if (this.edoNamesInput.value) {
             const lines = this.edoNamesInput.value.split('\n');
             for (const line of lines) {
                 const match = line.match(/^\s*(\d+)\s*:\s*(.+)$/);
@@ -244,9 +232,9 @@ class ConfigScreen {
             }
         }
 
-        // Parse ratio names
+        // Parse ratio names (always parse if input exists)
         const ratioNames = {};
-        if (this.customLabelsToggle.checked && this.ratioNamesInput.value) {
+        if (this.ratioNamesInput.value) {
             const lines = this.ratioNamesInput.value.split('\n');
             for (const line of lines) {
                 const match = line.match(/^\s*([^:]+)\s*:\s*(.+)$/);
