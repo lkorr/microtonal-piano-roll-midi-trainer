@@ -15,6 +15,7 @@ class ConfigScreen {
         this.chordsInput = document.getElementById('chords-input');
         this.inversionsToggle = document.getElementById('toggle-inversions');
         this.customLabelsToggle = document.getElementById('toggle-custom-labels-config');
+        this.hideNumbersToggle = document.getElementById('toggle-hide-numbers');
         this.edoNamesInput = document.getElementById('edo-names-input');
         this.ratioNamesInput = document.getElementById('ratio-names-input');
 
@@ -277,7 +278,7 @@ class ConfigScreen {
 
         // Parse EDO step names (always parse if input exists)
         const edoStepNames = {};
-        if (this.edoNamesInput.value) {
+        if (this.edoNamesInput && this.edoNamesInput.value) {
             const lines = this.edoNamesInput.value.split('\n');
             for (const line of lines) {
                 const match = line.match(/^\s*(\d+)\s*:\s*(.+)$/);
@@ -291,7 +292,7 @@ class ConfigScreen {
 
         // Parse ratio names (always parse if input exists)
         const ratioNames = {};
-        if (this.ratioNamesInput.value) {
+        if (this.ratioNamesInput && this.ratioNamesInput.value) {
             const lines = this.ratioNamesInput.value.split('\n');
             for (const line of lines) {
                 const match = line.match(/^\s*([^:]+)\s*:\s*(.+)$/);
@@ -309,6 +310,7 @@ class ConfigScreen {
             synthType,
             customLabels,
             useCustomLabels: this.customLabelsToggle.checked,
+            hideNumbers: this.hideNumbersToggle.checked,
             edoStepNames,
             ratioNames,
             mode: this.currentMode

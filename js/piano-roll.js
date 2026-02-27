@@ -75,6 +75,7 @@ class PianoRoll {
 
         // Apply current display settings
         this.applyBlackKeyPattern();
+        this.applyHoverLabels();
 
         // Apply initial key heights and font sizes
         this.updateKeyHeights();
@@ -454,6 +455,9 @@ class PianoRoll {
         }
 
         if (hoverLabelsToggle) {
+            // Initialize state from checkbox
+            this.hoverLabelsOnly = hoverLabelsToggle.checked;
+
             hoverLabelsToggle.addEventListener('change', (e) => {
                 this.hoverLabelsOnly = e.target.checked;
                 this.applyHoverLabels();

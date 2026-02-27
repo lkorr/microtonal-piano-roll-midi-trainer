@@ -66,15 +66,15 @@ class GameLogic {
             this.pianoRoll = new PianoRoll('piano-roll', 127);
         }
 
-        this.pianoRoll.init(config.edo);
-
-        // Set custom labels if provided
+        // Set custom labels BEFORE init
         if (config.customLabels && config.customLabels.length > 0) {
-            this.pianoRoll.setCustomLabels(config.customLabels);
+            this.pianoRoll.customLabels = config.customLabels;
         }
 
-        // Set whether to use custom labels
+        // Set whether to use custom labels BEFORE init
         this.pianoRoll.useCustomLabels = config.useCustomLabels || false;
+
+        this.pianoRoll.init(config.edo);
 
         // Setup piano roll callback
         this.pianoRoll.onNoteClick = (step, userNotes) => {
@@ -113,7 +113,8 @@ class GameLogic {
 
         // Disable submit button until user places notes
         this.submitBtn.disabled = true;
-        this.questionStartTime = Date.now();
+        // Don't set questionStartTime yet - will be set when user places first note
+        this.questionStartTime = null;
     }
 
     /**
@@ -148,9 +149,16 @@ class GameLogic {
         this.pianoRoll.setReferenceNote(referenceNote);
 
         // Use custom name if available
-        const intervalName = this.config.edoStepNames && this.config.edoStepNames[interval]
-            ? `${interval} (${this.config.edoStepNames[interval]})`
-            : `${interval}`;
+        let intervalName;
+        if (this.config.edoStepNames && this.config.edoStepNames[interval]) {
+            // Has a label
+            intervalName = this.config.hideNumbers
+                ? `${this.config.edoStepNames[interval]}`
+                : `${this.config.edoStepNames[interval]} (${interval})`;
+        } else {
+            // No label, just show number
+            intervalName = `${interval}`;
+        }
 
         this.currentTaskDisplay.textContent = `Place interval: ${intervalName}`;
 
@@ -191,9 +199,16 @@ class GameLogic {
         this.pianoRoll.setReferenceNote(referenceNote);
 
         // Use custom name if available
-        const ratioName = this.config.ratioNames && this.config.ratioNames[ratioMapping.ratioStr]
-            ? `${ratioMapping.ratioStr} (${this.config.ratioNames[ratioMapping.ratioStr]})`
-            : `${ratioMapping.ratioStr}`;
+        let ratioName;
+        if (this.config.ratioNames && this.config.ratioNames[ratioMapping.ratioStr]) {
+            // Has a label
+            ratioName = this.config.hideNumbers
+                ? `${this.config.ratioNames[ratioMapping.ratioStr]}`
+                : `${this.config.ratioNames[ratioMapping.ratioStr]} (${ratioMapping.ratioStr})`;
+        } else {
+            // No label, just show ratio
+            ratioName = `${ratioMapping.ratioStr}`;
+        }
 
         this.currentTaskDisplay.textContent = `Place ratio: ${ratioName}`;
 
@@ -270,6 +285,11 @@ class GameLogic {
     updateSubmitButton(userNotes) {
         // Enable submit if user has placed notes
         this.submitBtn.disabled = userNotes.size === 0;
+
+        // Start timer on first note placement
+        if (userNotes.size > 0 && this.questionStartTime === null) {
+            this.questionStartTime = Date.now();
+        }
     }
 
     /**
@@ -282,8 +302,8 @@ class GameLogic {
         // Check if answer is correct
         const isCorrect = this.validateAnswer(userNotes, correctAnswers);
 
-        // Record time
-        const questionTime = (Date.now() - this.questionStartTime) / 1000;
+        // Record time (only if timer was started)
+        const questionTime = this.questionStartTime ? (Date.now() - this.questionStartTime) / 1000 : 0;
         this.score.times.push(questionTime);
         this.score.total++;
 
@@ -295,15 +315,25 @@ class GameLogic {
         if (this.currentQuestionData.type === 'edo-steps') {
             const cents = getCents(this.config.edo, this.currentQuestionData.interval);
             const interval = this.currentQuestionData.interval;
-            const intervalName = this.config.edoStepNames && this.config.edoStepNames[interval]
-                ? `${interval} (${this.config.edoStepNames[interval]})`
-                : `${interval}`;
+            let intervalName;
+            if (this.config.edoStepNames && this.config.edoStepNames[interval]) {
+                intervalName = this.config.hideNumbers
+                    ? `${this.config.edoStepNames[interval]}`
+                    : `${this.config.edoStepNames[interval]} (${interval})`;
+            } else {
+                intervalName = `${interval}`;
+            }
             this.currentTaskDisplay.textContent = `Place interval: ${intervalName} (${cents})`;
         } else if (this.currentQuestionData.type === 'ratio') {
             const cents = getCents(this.config.edo, this.currentQuestionData.steps);
-            const ratioName = this.config.ratioNames && this.config.ratioNames[this.currentQuestionData.ratioStr]
-                ? `${this.currentQuestionData.ratioStr} (${this.config.ratioNames[this.currentQuestionData.ratioStr]})`
-                : `${this.currentQuestionData.ratioStr}`;
+            let ratioName;
+            if (this.config.ratioNames && this.config.ratioNames[this.currentQuestionData.ratioStr]) {
+                ratioName = this.config.hideNumbers
+                    ? `${this.config.ratioNames[this.currentQuestionData.ratioStr]}`
+                    : `${this.config.ratioNames[this.currentQuestionData.ratioStr]} (${this.currentQuestionData.ratioStr})`;
+            } else {
+                ratioName = `${this.currentQuestionData.ratioStr}`;
+            }
             this.currentTaskDisplay.textContent = `Place ratio: ${ratioName} (${this.currentQuestionData.steps} steps, ${cents})`;
         }
 
