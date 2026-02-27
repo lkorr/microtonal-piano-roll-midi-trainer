@@ -375,11 +375,15 @@ body.zooming * {
 /* Hover-only labels mode - applies to sidebar */
 .piano-roll-container.hover-labels-only .sidebar-label {
     opacity: 0;
-    transition: opacity 0.1s;
+    transition: opacity 0.15s;
 }
 
-.piano-roll-container.hover-labels-only .zoom-sidebar:hover .sidebar-label,
-.piano-roll-container.hover-labels-only .piano-roll-wrapper:hover ~ .zoom-sidebar .sidebar-label {
+.piano-roll-container.hover-labels-only .zoom-sidebar:hover .sidebar-label {
+    opacity: 1;
+}
+
+/* Show label when corresponding piano key is hovered */
+.piano-roll-container.hover-labels-only .sidebar-label.hovered {
     opacity: 1;
 }
 

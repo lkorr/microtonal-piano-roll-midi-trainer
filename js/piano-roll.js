@@ -65,6 +65,10 @@ class PianoRoll {
             // Add click handler
             keyElement.addEventListener('click', () => this.handleKeyClick(i));
 
+            // Add hover handlers to show corresponding sidebar label
+            keyElement.addEventListener('mouseenter', () => this.handleKeyHover(i, true));
+            keyElement.addEventListener('mouseleave', () => this.handleKeyHover(i, false));
+
             this.container.appendChild(keyElement);
             this.keys[i] = keyElement;
         }
@@ -135,6 +139,25 @@ class PianoRoll {
 
         // Insert label container at the beginning of wrapper so it appears on the left
         this.wrapper.insertBefore(labelContainer, this.wrapper.firstChild);
+    }
+
+    /**
+     * Handle key hover (show corresponding sidebar label)
+     */
+    handleKeyHover(step, isEntering) {
+        if (!this.hoverLabelsOnly) return;
+
+        // Find the corresponding sidebar label
+        const sidebarLabels = this.wrapper.querySelectorAll('.sidebar-label');
+
+        // Labels are in the same order as keys (both use column-reverse)
+        if (sidebarLabels[step]) {
+            if (isEntering) {
+                sidebarLabels[step].classList.add('hovered');
+            } else {
+                sidebarLabels[step].classList.remove('hovered');
+            }
+        }
     }
 
     /**
