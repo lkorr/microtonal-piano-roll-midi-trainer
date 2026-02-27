@@ -103,32 +103,60 @@ class ConfigScreen {
         const edo = parseInt(this.edoInput.value);
         if (isNaN(edo) || edo < 1 || edo > 127) return;
 
-        // Stock ratios with names
+        // Stock ratios with names and precedence
         const stockRatios = [
             { ratio: '8/7', name: 'septimal major second' },
-            { ratio: '16/13', name: 'tridecimal neutral third' },
+            { ratio: '10/9', name: 'minor whole tone' },
+            { ratio: '9/8', name: 'major whole tone' },
             { ratio: '6/5', name: 'minor third' },
             { ratio: '5/4', name: 'major third' },
             { ratio: '4/3', name: 'perfect fourth' },
             { ratio: '7/5', name: 'lesser septimal tritone' },
             { ratio: '10/7', name: 'greater septimal tritone' },
-            { ratio: '11/8', name: 'undecimal tritone' },
-            { ratio: '16/11', name: 'undecimal tritone' },
             { ratio: '3/2', name: 'perfect fifth' },
             { ratio: '8/5', name: 'minor sixth' },
-            { ratio: '13/8', name: 'tridecimal neutral sixth' },
-            { ratio: '7/4', name: 'harmonic seventh' }
+            { ratio: '5/3', name: 'major sixth' },
+            { ratio: '9/5', name: 'minor seventh' },  // Check first (has precedence)
+            { ratio: '7/4', name: 'harmonic seventh' },
+            { ratio: '15/8', name: 'major seventh' }
         ];
 
         // Get EDO approximations for these ratios
         const ratioMappings = getRatioMappings(edo, stockRatios.map(r => r.ratio));
 
-        // Build a map of steps to ratio names
-        const stepToName = {};
+        // Build a map of steps to ratio info with error
+        const stepToRatios = {};
         for (const mapping of ratioMappings) {
+            if (!stepToRatios[mapping.steps]) {
+                stepToRatios[mapping.steps] = [];
+            }
             const ratioInfo = stockRatios.find(r => r.ratio === mapping.ratioStr);
-            if (ratioInfo && !stepToName[mapping.steps]) {
-                stepToName[mapping.steps] = ratioInfo.name;
+            if (ratioInfo) {
+                stepToRatios[mapping.steps].push({
+                    ratio: mapping.ratioStr,
+                    name: ratioInfo.name,
+                    error: mapping.error
+                });
+            }
+        }
+
+        // Choose the best name for each step
+        const stepToName = {};
+        for (const [step, ratios] of Object.entries(stepToRatios)) {
+            if (ratios.length === 1) {
+                stepToName[step] = ratios[0].name;
+            } else {
+                // Multiple ratios map to same step
+                // Special case: 7/5 and 10/7 both map to same step -> "tritone"
+                const hasLesserTritone = ratios.some(r => r.ratio === '7/5');
+                const hasGreaterTritone = ratios.some(r => r.ratio === '10/7');
+                if (hasLesserTritone && hasGreaterTritone) {
+                    stepToName[step] = 'tritone';
+                } else {
+                    // Use the one with lowest error
+                    const best = ratios.reduce((a, b) => a.error < b.error ? a : b);
+                    stepToName[step] = best.name;
+                }
             }
         }
 
