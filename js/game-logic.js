@@ -121,8 +121,8 @@ class GameLogic {
      * Generate EDO steps mode question
      */
     generateEDOStepsQuestion() {
-        // Random reference note: middle C (63) ± 12
-        const referenceNote = randomInt(63 - 12, 63 + 12);
+        // Random reference note: middle C (63) ± 12, or fixed at middle C
+        const referenceNote = this.config.fixedRoot ? 63 : randomInt(63 - 12, 63 + 12);
 
         // Random interval from config
         const interval = randomChoice(this.config.intervals);
@@ -170,8 +170,8 @@ class GameLogic {
      * Generate ratio mode question
      */
     generateRatioQuestion() {
-        // Random reference note
-        const referenceNote = randomInt(63 - 12, 63 + 12);
+        // Random reference note, or fixed at middle C
+        const referenceNote = this.config.fixedRoot ? 63 : randomInt(63 - 12, 63 + 12);
 
         // Random ratio from mappings
         const ratioMapping = randomChoice(this.config.ratioMappings);
@@ -220,8 +220,8 @@ class GameLogic {
      * Generate chord mode question
      */
     generateChordQuestion() {
-        // Random reference note
-        const referenceNote = randomInt(63 - 12, 63 + 12);
+        // Random reference note, or fixed at middle C
+        const referenceNote = this.config.fixedRoot ? 63 : randomInt(63 - 12, 63 + 12);
 
         // Random chord from config
         const chord = randomChoice(this.config.chords);

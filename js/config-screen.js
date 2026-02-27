@@ -16,6 +16,7 @@ class ConfigScreen {
         this.inversionsToggle = document.getElementById('toggle-inversions');
         this.customLabelsToggle = document.getElementById('toggle-custom-labels-config');
         this.hideNumbersToggle = document.getElementById('toggle-hide-numbers');
+        this.fixedRootToggle = document.getElementById('toggle-fixed-root');
         this.edoNamesInput = document.getElementById('edo-names-input');
         this.ratioNamesInput = document.getElementById('ratio-names-input');
 
@@ -311,6 +312,7 @@ class ConfigScreen {
             customLabels,
             useCustomLabels: this.customLabelsToggle.checked,
             hideNumbers: this.hideNumbersToggle.checked,
+            fixedRoot: this.fixedRootToggle.checked,
             edoStepNames,
             ratioNames,
             mode: this.currentMode
