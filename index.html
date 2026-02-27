@@ -53,32 +53,27 @@
                 </div>
 
                 <div class="mode-content active" id="edo-steps-content">
-                    <label for="intervals-input">Intervals (comma-separated steps):</label>
-                    <input type="text" id="intervals-input" placeholder="e.g., 13, 7, 3" />
+                    <label for="intervals-input">Intervals (one per line: step : name):</label>
+                    <textarea id="intervals-input" rows="8" placeholder="e.g., 2 : major second&#10;5 : perfect fourth"></textarea>
                     <p class="help-text">Enter EDO step intervals to practice</p>
-
-                    <label for="edo-names-input" style="margin-top: 15px; display: block;">Interval Names (one per line: step : name):</label>
-                    <textarea id="edo-names-input" rows="6" placeholder="e.g., 2 : major second&#10;5 : perfect fourth"></textarea>
-                    <p class="help-text">Optional: Name your EDO steps for display</p>
                 </div>
 
                 <div class="mode-content" id="ratio-content">
-                    <label for="ratios-input">Ratios (one per line):</label>
-                    <textarea id="ratios-input" rows="10" placeholder="e.g., 3/2&#10;5/4&#10;7/4">8/7
-16/13
-5/4
-4/3
-11/8
-16/11
-3/2
-8/5
-13/8
-7/4</textarea>
+                    <label for="ratios-input">Ratios (one per line: ratio : name):</label>
+                    <textarea id="ratios-input" rows="13" placeholder="e.g., 3/2 : perfect fifth&#10;5/4 : major third">8/7 : septimal major second
+16/13 : tridecimal neutral third
+6/5 : minor third
+5/4 : major third
+4/3 : perfect fourth
+7/5 : lesser septimal tritone
+10/7 : greater septimal tritone
+11/8 : undecimal tritone
+16/11 : undecimal tritone
+3/2 : perfect fifth
+8/5 : minor sixth
+13/8 : tridecimal neutral sixth
+7/4 : harmonic seventh</textarea>
                     <p class="help-text">Only ratios with <40% relative error will be used</p>
-
-                    <label for="ratio-names-input" style="margin-top: 15px; display: block;">Ratio Names (one per line: ratio : name):</label>
-                    <textarea id="ratio-names-input" rows="6" placeholder="e.g., 9/8 : major second&#10;3/2 : perfect fifth"></textarea>
-                    <p class="help-text">Optional: Name your ratios for display</p>
                 </div>
 
                 <div class="mode-content" id="chord-content">

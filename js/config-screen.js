@@ -103,17 +103,46 @@ class ConfigScreen {
         const edo = parseInt(this.edoInput.value);
         if (isNaN(edo) || edo < 1 || edo > 127) return;
 
-        // Stock ratios
-        const stockRatios = ['8/7', '16/13', '5/4', '4/3', '11/8', '16/11', '3/2', '8/5', '13/8', '7/4'];
+        // Stock ratios with names
+        const stockRatios = [
+            { ratio: '8/7', name: 'septimal major second' },
+            { ratio: '16/13', name: 'tridecimal neutral third' },
+            { ratio: '6/5', name: 'minor third' },
+            { ratio: '5/4', name: 'major third' },
+            { ratio: '4/3', name: 'perfect fourth' },
+            { ratio: '7/5', name: 'lesser septimal tritone' },
+            { ratio: '10/7', name: 'greater septimal tritone' },
+            { ratio: '11/8', name: 'undecimal tritone' },
+            { ratio: '16/11', name: 'undecimal tritone' },
+            { ratio: '3/2', name: 'perfect fifth' },
+            { ratio: '8/5', name: 'minor sixth' },
+            { ratio: '13/8', name: 'tridecimal neutral sixth' },
+            { ratio: '7/4', name: 'harmonic seventh' }
+        ];
 
         // Get EDO approximations for these ratios
-        const ratioMappings = getRatioMappings(edo, stockRatios);
+        const ratioMappings = getRatioMappings(edo, stockRatios.map(r => r.ratio));
 
-        // Extract the steps and remove duplicates
+        // Build a map of steps to ratio names
+        const stepToName = {};
+        for (const mapping of ratioMappings) {
+            const ratioInfo = stockRatios.find(r => r.ratio === mapping.ratioStr);
+            if (ratioInfo && !stepToName[mapping.steps]) {
+                stepToName[mapping.steps] = ratioInfo.name;
+            }
+        }
+
+        // Extract unique steps and sort
         const steps = [...new Set(ratioMappings.map(m => m.steps))].sort((a, b) => a - b);
 
+        // Format as "step : name"
+        const intervalLines = steps.map(step => {
+            const name = stepToName[step];
+            return name ? `${step} : ${name}` : `${step}`;
+        });
+
         // Update the intervals input
-        this.intervalsInput.value = steps.join(', ');
+        this.intervalsInput.value = intervalLines.join('\n');
 
         // Also update default chords
         this.updateDefaultChords();
@@ -259,10 +288,39 @@ class ConfigScreen {
 
         // Mode-specific configuration
         if (this.currentMode === 'edo-steps') {
-            const intervals = parseCommaSeparated(this.intervalsInput.value);
+            // Parse intervals in format "step : name" or just "step"
+            const intervalLines = this.intervalsInput.value
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+
+            if (intervalLines.length === 0) {
+                alert('Please enter at least one interval');
+                return null;
+            }
+
+            const intervals = [];
+            const intervalNames = {};
+
+            for (const line of intervalLines) {
+                // Try to parse "step : name" format
+                const match = line.match(/^\s*(\d+)\s*:\s*(.+)$/);
+                if (match) {
+                    const step = parseInt(match[1]);
+                    const name = match[2].trim();
+                    intervals.push(step);
+                    intervalNames[step] = name;
+                } else {
+                    // Just a number
+                    const step = parseInt(line);
+                    if (!isNaN(step)) {
+                        intervals.push(step);
+                    }
+                }
+            }
 
             if (intervals.length === 0) {
-                alert('Please enter at least one interval');
+                alert('Please enter at least one valid interval');
                 return null;
             }
 
@@ -274,6 +332,8 @@ class ConfigScreen {
             }
 
             config.intervals = intervals.map(i => Math.round(i));
+            // Merge with any existing names from edoStepNames
+            config.edoStepNames = { ...edoStepNames, ...intervalNames };
 
         } else if (this.currentMode === 'ratio') {
             const ratioLines = this.ratiosInput.value
@@ -286,8 +346,26 @@ class ConfigScreen {
                 return null;
             }
 
+            // Parse ratios in format "ratio : name" or just "ratio"
+            const ratios = [];
+            const ratioNamesFromInput = {};
+
+            for (const line of ratioLines) {
+                // Try to parse "ratio : name" format
+                const match = line.match(/^\s*([^:]+)\s*:\s*(.+)$/);
+                if (match) {
+                    const ratio = match[1].trim();
+                    const name = match[2].trim();
+                    ratios.push(ratio);
+                    ratioNamesFromInput[ratio] = name;
+                } else {
+                    // Just a ratio
+                    ratios.push(line);
+                }
+            }
+
             // Get ratio mappings (filters ratios with error < 40%)
-            const ratioMappings = getRatioMappings(edo, ratioLines);
+            const ratioMappings = getRatioMappings(edo, ratios);
 
             if (ratioMappings.length === 0) {
                 alert('No valid ratios found with error < 40% for this EDO');
@@ -295,6 +373,8 @@ class ConfigScreen {
             }
 
             config.ratioMappings = ratioMappings;
+            // Merge with any existing names from ratioNames
+            config.ratioNames = { ...ratioNames, ...ratioNamesFromInput };
 
         } else if (this.currentMode === 'chord') {
             const chordLines = this.chordsInput.value
