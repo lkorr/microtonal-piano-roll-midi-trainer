@@ -445,7 +445,6 @@ class PianoRoll {
     setupToggleControls() {
         const blackKeysToggle = document.getElementById('toggle-black-keys');
         const hoverLabelsToggle = document.getElementById('toggle-hover-labels');
-        const customLabelsToggle = document.getElementById('toggle-custom-labels');
 
         if (blackKeysToggle) {
             blackKeysToggle.addEventListener('change', (e) => {
@@ -458,13 +457,6 @@ class PianoRoll {
             hoverLabelsToggle.addEventListener('change', (e) => {
                 this.hoverLabelsOnly = e.target.checked;
                 this.applyHoverLabels();
-            });
-        }
-
-        if (customLabelsToggle) {
-            customLabelsToggle.addEventListener('change', (e) => {
-                this.useCustomLabels = e.target.checked;
-                this.createSidebarLabels();
             });
         }
     }

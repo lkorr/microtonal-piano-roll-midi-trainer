@@ -14,6 +14,9 @@ class ConfigScreen {
         this.ratiosInput = document.getElementById('ratios-input');
         this.chordsInput = document.getElementById('chords-input');
         this.inversionsToggle = document.getElementById('toggle-inversions');
+        this.customLabelsToggle = document.getElementById('toggle-custom-labels-config');
+        this.edoNamesInput = document.getElementById('edo-names-input');
+        this.ratioNamesInput = document.getElementById('ratio-names-input');
 
         // Mode tabs
         this.modeTabs = document.querySelectorAll('.mode-tab');
@@ -44,6 +47,11 @@ class ConfigScreen {
             this.updateNoteLabels();
         });
 
+        // Custom labels toggle
+        this.customLabelsToggle.addEventListener('change', () => {
+            this.toggleCustomLabelsSection();
+        });
+
         // Start button
         this.startBtn.addEventListener('click', () => {
             this.startGame();
@@ -52,6 +60,32 @@ class ConfigScreen {
         // Initialize EDO steps and note labels on load
         this.updateDefaultEdoSteps();
         this.updateNoteLabels();
+        this.toggleCustomLabelsSection();
+    }
+
+    /**
+     * Toggle visibility of custom labels sections
+     */
+    toggleCustomLabelsSection() {
+        const isCustomLabels = this.customLabelsToggle.checked;
+
+        // Show/hide note labels input
+        const noteLabelsSection = document.getElementById('note-labels-section');
+        if (noteLabelsSection) {
+            noteLabelsSection.style.display = isCustomLabels ? 'block' : 'none';
+        }
+
+        // Show/hide EDO names section
+        const edoNamesSection = document.getElementById('edo-names-section');
+        if (edoNamesSection) {
+            edoNamesSection.style.display = isCustomLabels ? 'block' : 'none';
+        }
+
+        // Show/hide ratio names section
+        const ratioNamesSection = document.getElementById('ratio-names-section');
+        if (ratioNamesSection) {
+            ratioNamesSection.style.display = isCustomLabels ? 'block' : 'none';
+        }
     }
 
     /**
@@ -196,11 +230,42 @@ class ConfigScreen {
             .map(label => label.trim())
             .filter(label => label.length > 0);
 
+        // Parse EDO step names
+        const edoStepNames = {};
+        if (this.customLabelsToggle.checked && this.edoNamesInput.value) {
+            const lines = this.edoNamesInput.value.split('\n');
+            for (const line of lines) {
+                const match = line.match(/^\s*(\d+)\s*:\s*(.+)$/);
+                if (match) {
+                    const step = parseInt(match[1]);
+                    const name = match[2].trim();
+                    edoStepNames[step] = name;
+                }
+            }
+        }
+
+        // Parse ratio names
+        const ratioNames = {};
+        if (this.customLabelsToggle.checked && this.ratioNamesInput.value) {
+            const lines = this.ratioNamesInput.value.split('\n');
+            for (const line of lines) {
+                const match = line.match(/^\s*([^:]+)\s*:\s*(.+)$/);
+                if (match) {
+                    const ratio = match[1].trim();
+                    const name = match[2].trim();
+                    ratioNames[ratio] = name;
+                }
+            }
+        }
+
         const config = {
             edo,
             questionCount,
             synthType,
             customLabels,
+            useCustomLabels: this.customLabelsToggle.checked,
+            edoStepNames,
+            ratioNames,
             mode: this.currentMode
         };
 

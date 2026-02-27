@@ -73,6 +73,9 @@ class GameLogic {
             this.pianoRoll.setCustomLabels(config.customLabels);
         }
 
+        // Set whether to use custom labels
+        this.pianoRoll.useCustomLabels = config.useCustomLabels || false;
+
         // Setup piano roll callback
         this.pianoRoll.onNoteClick = (step, userNotes) => {
             this.updateSubmitButton(userNotes);
@@ -143,7 +146,13 @@ class GameLogic {
 
         // Display question without cents initially
         this.pianoRoll.setReferenceNote(referenceNote);
-        this.currentTaskDisplay.textContent = `Place interval: ${interval}`;
+
+        // Use custom name if available
+        const intervalName = this.config.edoStepNames && this.config.edoStepNames[interval]
+            ? `${interval} (${this.config.edoStepNames[interval]})`
+            : `${interval}`;
+
+        this.currentTaskDisplay.textContent = `Place interval: ${intervalName}`;
 
         // Play reference note
         audioEngine.playNote(referenceNote, 0.5);
@@ -180,7 +189,13 @@ class GameLogic {
 
         // Display question without cents and steps initially
         this.pianoRoll.setReferenceNote(referenceNote);
-        this.currentTaskDisplay.textContent = `Place ratio: ${ratioMapping.ratioStr}`;
+
+        // Use custom name if available
+        const ratioName = this.config.ratioNames && this.config.ratioNames[ratioMapping.ratioStr]
+            ? `${ratioMapping.ratioStr} (${this.config.ratioNames[ratioMapping.ratioStr]})`
+            : `${ratioMapping.ratioStr}`;
+
+        this.currentTaskDisplay.textContent = `Place ratio: ${ratioName}`;
 
         // Play reference note
         audioEngine.playNote(referenceNote, 0.5);
@@ -279,10 +294,17 @@ class GameLogic {
         // Update display to show cents/steps information after answering
         if (this.currentQuestionData.type === 'edo-steps') {
             const cents = getCents(this.config.edo, this.currentQuestionData.interval);
-            this.currentTaskDisplay.textContent = `Place interval: ${this.currentQuestionData.interval} (${cents})`;
+            const interval = this.currentQuestionData.interval;
+            const intervalName = this.config.edoStepNames && this.config.edoStepNames[interval]
+                ? `${interval} (${this.config.edoStepNames[interval]})`
+                : `${interval}`;
+            this.currentTaskDisplay.textContent = `Place interval: ${intervalName} (${cents})`;
         } else if (this.currentQuestionData.type === 'ratio') {
             const cents = getCents(this.config.edo, this.currentQuestionData.steps);
-            this.currentTaskDisplay.textContent = `Place ratio: ${this.currentQuestionData.ratioStr} (${this.currentQuestionData.steps} steps, ${cents})`;
+            const ratioName = this.config.ratioNames && this.config.ratioNames[this.currentQuestionData.ratioStr]
+                ? `${this.currentQuestionData.ratioStr} (${this.config.ratioNames[this.currentQuestionData.ratioStr]})`
+                : `${this.currentQuestionData.ratioStr}`;
+            this.currentTaskDisplay.textContent = `Place ratio: ${ratioName} (${this.currentQuestionData.steps} steps, ${cents})`;
         }
 
         // Play audio feedback

@@ -23,12 +23,6 @@
             </div>
 
             <div class="config-section">
-                <label for="note-labels-input">Note Labels (comma-separated, starting from C):</label>
-                <input type="text" id="note-labels-input" placeholder="e.g., C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B" value="C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B" />
-                <p class="help-text">Labels will repeat across octaves. Number of labels should match EDO.</p>
-            </div>
-
-            <div class="config-section">
                 <label for="synth-type">Synth Type:</label>
                 <select id="synth-type">
                     <option value="sine">Sine</option>
@@ -36,6 +30,19 @@
                     <option value="square">Square</option>
                     <option value="triangle">Triangle</option>
                 </select>
+            </div>
+
+            <div class="config-section">
+                <label class="toggle-label">
+                    <input type="checkbox" id="toggle-custom-labels-config">
+                    <span>Use Custom Note Labels</span>
+                </label>
+            </div>
+
+            <div class="config-section" id="note-labels-section" style="display: none;">
+                <label for="note-labels-input">Note Labels (comma-separated, starting from C):</label>
+                <input type="text" id="note-labels-input" placeholder="e.g., C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B" value="C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B" />
+                <p class="help-text">Labels will repeat across octaves. Number of labels should match EDO.</p>
             </div>
 
             <div class="config-section">
@@ -49,6 +56,12 @@
                     <label for="intervals-input">Intervals (comma-separated steps):</label>
                     <input type="text" id="intervals-input" placeholder="e.g., 13, 7, 3" />
                     <p class="help-text">Enter EDO step intervals to practice</p>
+
+                    <div id="edo-names-section" style="display: none; margin-top: 15px;">
+                        <label for="edo-names-input">Interval Names (one per line: step : name):</label>
+                        <textarea id="edo-names-input" rows="6" placeholder="e.g., 2 : major second&#10;5 : perfect fourth"></textarea>
+                        <p class="help-text">Optional: Name your EDO steps for display</p>
+                    </div>
                 </div>
 
                 <div class="mode-content" id="ratio-content">
@@ -64,6 +77,12 @@
 13/8
 7/4</textarea>
                     <p class="help-text">Only ratios with <40% relative error will be used</p>
+
+                    <div id="ratio-names-section" style="display: none; margin-top: 15px;">
+                        <label for="ratio-names-input">Ratio Names (one per line: ratio : name):</label>
+                        <textarea id="ratio-names-input" rows="6" placeholder="e.g., 9/8 : major second&#10;3/2 : perfect fifth"></textarea>
+                        <p class="help-text">Optional: Name your ratios for display</p>
+                    </div>
                 </div>
 
                 <div class="mode-content" id="chord-content">
@@ -124,10 +143,6 @@
                     <label class="toggle-label">
                         <input type="checkbox" id="toggle-hover-labels">
                         <span>Hover Labels Only</span>
-                    </label>
-                    <label class="toggle-label">
-                        <input type="checkbox" id="toggle-custom-labels">
-                        <span>Custom Note Labels</span>
                     </label>
                 </div>
             </div>
