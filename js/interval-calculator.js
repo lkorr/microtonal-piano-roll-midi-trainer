@@ -100,9 +100,21 @@ function getCents(edo, steps) {
 /**
  * Get note name for display based on step number and EDO
  */
-function getNoteName(step, edo) {
+function getNoteName(step, edo, customLabels = null, useCustomLabels = false) {
     const middleCStep = 63;
-    const stepInOctave = ((step - middleCStep) % edo + edo) % edo;
+    const stepsFromMiddleC = step - middleCStep;
+    const stepInOctave = ((stepsFromMiddleC % edo) + edo) % edo;
 
+    // If using custom labels and they're provided
+    if (useCustomLabels && customLabels && customLabels.length > 0) {
+        const label = customLabels[stepInOctave % customLabels.length];
+
+        // Calculate octave number (middle C is octave 4)
+        const octaveNumber = 4 + Math.floor(stepsFromMiddleC / edo);
+
+        return `${label}${octaveNumber}`;
+    }
+
+    // Default: number notation
     return `${stepInOctave}\\${edo}`;
 }

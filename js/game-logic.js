@@ -68,6 +68,11 @@ class GameLogic {
 
         this.pianoRoll.init(config.edo);
 
+        // Set custom labels if provided
+        if (config.customLabels && config.customLabels.length > 0) {
+            this.pianoRoll.setCustomLabels(config.customLabels);
+        }
+
         // Setup piano roll callback
         this.pianoRoll.onNoteClick = (step, userNotes) => {
             this.updateSubmitButton(userNotes);

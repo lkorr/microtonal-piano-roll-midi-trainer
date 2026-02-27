@@ -8,6 +8,7 @@ class ConfigScreen {
         // Input elements
         this.edoInput = document.getElementById('edo-input');
         this.questionCountInput = document.getElementById('question-count');
+        this.noteLabelsInput = document.getElementById('note-labels-input');
         this.synthTypeSelect = document.getElementById('synth-type');
         this.intervalsInput = document.getElementById('intervals-input');
         this.ratiosInput = document.getElementById('ratios-input');
@@ -40,6 +41,7 @@ class ConfigScreen {
         // EDO input change - update EDO steps based on stock ratios
         this.edoInput.addEventListener('input', () => {
             this.updateDefaultEdoSteps();
+            this.updateNoteLabels();
         });
 
         // Start button
@@ -47,8 +49,29 @@ class ConfigScreen {
             this.startGame();
         });
 
-        // Initialize EDO steps on load
+        // Initialize EDO steps and note labels on load
         this.updateDefaultEdoSteps();
+        this.updateNoteLabels();
+    }
+
+    /**
+     * Update note labels to match EDO (generate default labels if needed)
+     */
+    updateNoteLabels() {
+        const edo = parseInt(this.edoInput.value);
+        if (isNaN(edo) || edo < 1 || edo > 127) return;
+
+        // Get current labels
+        const currentLabels = this.noteLabelsInput.value
+            .split(',')
+            .map(label => label.trim())
+            .filter(label => label.length > 0);
+
+        // If current labels don't match EDO count, generate new ones for 12-EDO
+        // Otherwise keep user's custom labels
+        if (edo === 12 && currentLabels.length !== 12) {
+            this.noteLabelsInput.value = 'C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B';
+        }
     }
 
     /**
@@ -167,10 +190,17 @@ class ConfigScreen {
             return null;
         }
 
+        // Parse custom note labels
+        const customLabels = this.noteLabelsInput.value
+            .split(',')
+            .map(label => label.trim())
+            .filter(label => label.length > 0);
+
         const config = {
             edo,
             questionCount,
             synthType,
+            customLabels,
             mode: this.currentMode
         };
 

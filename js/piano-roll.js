@@ -27,6 +27,8 @@ class PianoRoll {
         // Display options
         this.showBlackKeys = false;
         this.hoverLabelsOnly = false;
+        this.customLabels = null;
+        this.useCustomLabels = false;
 
         this.setupDragZoom();
         this.setupToggleControls();
@@ -114,7 +116,7 @@ class PianoRoll {
         for (let i = 0; i < this.numNotes; i++) {
             const label = document.createElement('div');
             label.className = 'sidebar-label';
-            label.textContent = getNoteName(i, this.edo);
+            label.textContent = getNoteName(i, this.edo, this.customLabels, this.useCustomLabels);
 
             // Set initial height and font size
             const fontSize = Math.max(7, Math.min(12, this.keyHeight * 0.45));
@@ -420,6 +422,7 @@ class PianoRoll {
     setupToggleControls() {
         const blackKeysToggle = document.getElementById('toggle-black-keys');
         const hoverLabelsToggle = document.getElementById('toggle-hover-labels');
+        const customLabelsToggle = document.getElementById('toggle-custom-labels');
 
         if (blackKeysToggle) {
             blackKeysToggle.addEventListener('change', (e) => {
@@ -432,6 +435,13 @@ class PianoRoll {
             hoverLabelsToggle.addEventListener('change', (e) => {
                 this.hoverLabelsOnly = e.target.checked;
                 this.applyHoverLabels();
+            });
+        }
+
+        if (customLabelsToggle) {
+            customLabelsToggle.addEventListener('change', (e) => {
+                this.useCustomLabels = e.target.checked;
+                this.createSidebarLabels();
             });
         }
     }
@@ -458,6 +468,16 @@ class PianoRoll {
             container.classList.add('hover-labels-only');
         } else {
             container.classList.remove('hover-labels-only');
+        }
+    }
+
+    /**
+     * Set custom note labels
+     */
+    setCustomLabels(labels) {
+        this.customLabels = labels;
+        if (this.useCustomLabels) {
+            this.createSidebarLabels();
         }
     }
 }
