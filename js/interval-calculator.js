@@ -22,10 +22,10 @@ function findBestEDOApproximation(edo, ratio) {
 
 /**
  * Get ratio mappings for a given EDO
- * Returns array of {ratio, ratioStr, steps, error} for ratios with error < 40%
+ * Returns array of {ratio, ratioStr, steps, error} for ratios with error < 50%
  */
 function getRatioMappings(edo, ratios) {
-    return getRatioMappingsWithThreshold(edo, ratios, 40);
+    return getRatioMappingsWithThreshold(edo, ratios, 50);
 }
 
 /**

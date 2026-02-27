@@ -107,7 +107,7 @@ class ConfigScreen {
         const stockRatios = [
             { ratio: '8/7', name: 'septimal major second' },
             { ratio: '10/9', name: 'minor whole tone' },
-            { ratio: '9/8', name: 'major whole tone' },
+            { ratio: '9/8', name: 'major second' },
             { ratio: '6/5', name: 'minor third' },
             { ratio: '5/4', name: 'major third' },
             { ratio: '4/3', name: 'perfect fourth' },
