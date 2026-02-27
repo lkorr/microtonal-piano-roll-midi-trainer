@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microtonal Piano Roll Trainer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Configuration Screen -->
+    <div id="config-screen" class="screen active">
+        <div class="config-container">
+            <h1>Microtonal Piano Roll Trainer</h1>
+
+            <div class="config-section">
+                <label for="edo-input">EDO (Equal Divisions of Octave):</label>
+                <input type="number" id="edo-input" min="1" max="127" value="12" />
+            </div>
+
+            <div class="config-section">
+                <label for="question-count">Number of Questions:</label>
+                <input type="number" id="question-count" min="1" max="100" value="10" />
+            </div>
+
+            <div class="config-section">
+                <label for="synth-type">Synth Type:</label>
+                <select id="synth-type">
+                    <option value="sine">Sine</option>
+                    <option value="sawtooth">Sawtooth</option>
+                    <option value="square">Square</option>
+                    <option value="triangle">Triangle</option>
+                </select>
+            </div>
+
+            <div class="config-section">
+                <div class="mode-tabs">
+                    <button class="mode-tab active" data-mode="edo-steps">EDO Steps</button>
+                    <button class="mode-tab" data-mode="ratio">Ratio Mode</button>
+                    <button class="mode-tab" data-mode="chord">Chord Mode</button>
+                </div>
+
+                <div class="mode-content active" id="edo-steps-content">
+                    <label for="intervals-input">Intervals (comma-separated steps):</label>
+                    <input type="text" id="intervals-input" placeholder="e.g., 13, 7, 3" />
+                    <p class="help-text">Enter EDO step intervals to practice</p>
+                </div>
+
+                <div class="mode-content" id="ratio-content">
+                    <label for="ratios-input">Ratios (one per line):</label>
+                    <textarea id="ratios-input" rows="10" placeholder="e.g., 3/2&#10;5/4&#10;7/4">8/7
+16/13
+5/4
+4/3
+11/8
+16/11
+3/2
+8/5
+13/8
+7/4</textarea>
+                    <p class="help-text">Only ratios with <40% relative error will be used</p>
+                </div>
+
+                <div class="mode-content" id="chord-content">
+                    <label for="chords-input">Chords (one per line: [intervals] : name):</label>
+                    <textarea id="chords-input" rows="8" placeholder="e.g., [0, 4, 7] : major"></textarea>
+                    <p class="help-text">Enter chord intervals and names</p>
+                    <label class="toggle-label" style="margin-top: 15px;">
+                        <input type="checkbox" id="toggle-inversions">
+                        <span>Include Inversions</span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="start-btn" class="primary-btn">Start Training</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <!-- Header -->
+            <div class="game-header">
+                <div class="question-info">
+                    <span id="question-counter">Question 1/10</span>
+                    <span id="current-task" class="task-display">Place interval: 13</span>
+                </div>
+                <div class="timer-info">
+                    <div class="timer-item">
+                        <span class="timer-label">Total:</span>
+                        <span id="total-timer">0.0s</span>
+                    </div>
+                    <div class="timer-item">
+                        <span class="timer-label">Avg:</span>
+                        <span id="avg-timer">0.0s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Piano Roll Container -->
+            <div class="piano-roll-container">
+                <div id="zoom-sidebar" class="zoom-sidebar"></div>
+                <div id="piano-roll-wrapper" class="piano-roll-wrapper">
+                    <div id="piano-roll" class="piano-roll"></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="game-controls">
+                <div class="control-section">
+                    <button id="submit-btn" class="primary-btn" disabled>Submit (Enter)</button>
+                    <button id="quit-btn" class="secondary-btn">Quit</button>
+                </div>
+                <div class="toggle-section">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="toggle-black-keys">
+                        <span>12-EDO Black Keys</span>
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="toggle-hover-labels">
+                        <span>Hover Labels Only</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Overlay -->
+        <div id="feedback-overlay" class="feedback-overlay">
+            <div class="feedback-content">
+                <div class="feedback-icon"></div>
+                <div class="feedback-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <div class="results-container">
+            <h1>Training Complete!</h1>
+
+            <div class="results-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-value" id="accuracy-stat">0%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Time</div>
+                    <div class="stat-value" id="total-time-stat">0.0s</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Average Time</div>
+                    <div class="stat-value" id="avg-time-stat">0.0s</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Correct</div>
+                    <div class="stat-value" id="correct-stat">0/0</div>
+                </div>
+            </div>
+
+            <button id="restart-btn" class="primary-btn">Start New Session</button>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/interval-calculator.js"></script>
+    <script src="js/audio-engine.js"></script>
+    <script src="js/piano-roll.js"></script>
+    <script src="js/config-screen.js"></script>
+    <script src="js/game-logic.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

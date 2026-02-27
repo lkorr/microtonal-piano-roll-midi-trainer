@@ -1,0 +1,276 @@
+// Configuration Screen - Handle user configuration and mode switching
+
+class ConfigScreen {
+    constructor() {
+        this.configScreen = document.getElementById('config-screen');
+        this.gameScreen = document.getElementById('game-screen');
+
+        // Input elements
+        this.edoInput = document.getElementById('edo-input');
+        this.questionCountInput = document.getElementById('question-count');
+        this.synthTypeSelect = document.getElementById('synth-type');
+        this.intervalsInput = document.getElementById('intervals-input');
+        this.ratiosInput = document.getElementById('ratios-input');
+        this.chordsInput = document.getElementById('chords-input');
+        this.inversionsToggle = document.getElementById('toggle-inversions');
+
+        // Mode tabs
+        this.modeTabs = document.querySelectorAll('.mode-tab');
+        this.modeContents = document.querySelectorAll('.mode-content');
+        this.currentMode = 'edo-steps';
+
+        // Buttons
+        this.startBtn = document.getElementById('start-btn');
+
+        this.setupEventListeners();
+    }
+
+    /**
+     * Setup event listeners
+     */
+    setupEventListeners() {
+        // Mode tab switching
+        this.modeTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const mode = tab.dataset.mode;
+                this.switchMode(mode);
+            });
+        });
+
+        // EDO input change - update EDO steps based on stock ratios
+        this.edoInput.addEventListener('input', () => {
+            this.updateDefaultEdoSteps();
+        });
+
+        // Start button
+        this.startBtn.addEventListener('click', () => {
+            this.startGame();
+        });
+
+        // Initialize EDO steps on load
+        this.updateDefaultEdoSteps();
+    }
+
+    /**
+     * Update default EDO steps based on current EDO and stock ratios
+     */
+    updateDefaultEdoSteps() {
+        const edo = parseInt(this.edoInput.value);
+        if (isNaN(edo) || edo < 1 || edo > 127) return;
+
+        // Stock ratios
+        const stockRatios = ['8/7', '16/13', '5/4', '4/3', '11/8', '16/11', '3/2', '8/5', '13/8', '7/4'];
+
+        // Get EDO approximations for these ratios
+        const ratioMappings = getRatioMappings(edo, stockRatios);
+
+        // Extract the steps and remove duplicates
+        const steps = [...new Set(ratioMappings.map(m => m.steps))].sort((a, b) => a - b);
+
+        // Update the intervals input
+        this.intervalsInput.value = steps.join(', ');
+
+        // Also update default chords
+        this.updateDefaultChords();
+    }
+
+    /**
+     * Update default chords based on current EDO and ratio approximations
+     */
+    updateDefaultChords() {
+        const edo = parseInt(this.edoInput.value);
+        if (isNaN(edo) || edo < 1 || edo > 127) return;
+
+        // Define stock chords with their ratio formulas
+        const stockChords = [
+            { ratios: ['1/1', '5/4', '3/2'], name: 'major' },
+            { ratios: ['1/1', '6/5', '3/2'], name: 'minor' },
+            { ratios: ['1/1', '5/4', '3/2', '15/8'], name: 'maj7' },
+            { ratios: ['1/1', '6/5', '3/2', '9/5'], name: 'min7' },
+            { ratios: ['1/1', '5/4', '3/2', '9/5'], name: 'dom7' },
+            { ratios: ['1/1', '5/4', '3/2', '7/4'], name: 'harmonic7' }
+        ];
+
+        const chordLines = [];
+
+        for (const chord of stockChords) {
+            // Get EDO approximations for each ratio (with 50% error threshold for chords)
+            const ratioMappings = getRatioMappingsWithThreshold(edo, chord.ratios, 50);
+
+            // Skip if any ratio has >50% error
+            if (ratioMappings.length !== chord.ratios.length) continue;
+
+            // Get the steps for each ratio
+            const steps = ratioMappings.map(m => m.steps);
+
+            // For harmonic7, check if it's the same as dom7
+            if (chord.name === 'harmonic7') {
+                const dom7Ratios = getRatioMappingsWithThreshold(edo, ['1/1', '5/4', '3/2', '9/5'], 50);
+                if (dom7Ratios.length === 4) {
+                    const dom7Steps = dom7Ratios.map(m => m.steps);
+                    // If harmonic7 and dom7 have the same steps, skip harmonic7
+                    if (JSON.stringify(steps) === JSON.stringify(dom7Steps)) {
+                        continue;
+                    }
+                }
+            }
+
+            // Format as [0, step1, step2, ...] : name
+            chordLines.push(`[${steps.join(', ')}] : ${chord.name}`);
+        }
+
+        // Update the chords input
+        this.chordsInput.value = chordLines.join('\n');
+    }
+
+    /**
+     * Switch between modes
+     */
+    switchMode(mode) {
+        this.currentMode = mode;
+
+        // Update tab active states
+        this.modeTabs.forEach(tab => {
+            if (tab.dataset.mode === mode) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+
+        // Update content active states
+        this.modeContents.forEach(content => {
+            if (content.id === `${mode}-content`) {
+                content.classList.add('active');
+            } else {
+                content.classList.remove('active');
+            }
+        });
+    }
+
+    /**
+     * Validate and get configuration
+     */
+    getConfig() {
+        const edo = parseInt(this.edoInput.value);
+        const questionCount = parseInt(this.questionCountInput.value);
+        const synthType = this.synthTypeSelect.value;
+
+        // Validate basic inputs
+        if (isNaN(edo) || edo < 1 || edo > 127) {
+            alert('Please enter a valid EDO between 1 and 127');
+            return null;
+        }
+
+        if (isNaN(questionCount) || questionCount < 1) {
+            alert('Please enter a valid question count');
+            return null;
+        }
+
+        const config = {
+            edo,
+            questionCount,
+            synthType,
+            mode: this.currentMode
+        };
+
+        // Mode-specific configuration
+        if (this.currentMode === 'edo-steps') {
+            const intervals = parseCommaSeparated(this.intervalsInput.value);
+
+            if (intervals.length === 0) {
+                alert('Please enter at least one interval');
+                return null;
+            }
+
+            // Validate intervals are within EDO range
+            const invalidIntervals = intervals.filter(i => i < 1 || i >= edo);
+            if (invalidIntervals.length > 0) {
+                alert(`Intervals must be between 1 and ${edo - 1}`);
+                return null;
+            }
+
+            config.intervals = intervals.map(i => Math.round(i));
+
+        } else if (this.currentMode === 'ratio') {
+            const ratioLines = this.ratiosInput.value
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+
+            if (ratioLines.length === 0) {
+                alert('Please enter at least one ratio');
+                return null;
+            }
+
+            // Get ratio mappings (filters ratios with error < 40%)
+            const ratioMappings = getRatioMappings(edo, ratioLines);
+
+            if (ratioMappings.length === 0) {
+                alert('No valid ratios found with error < 40% for this EDO');
+                return null;
+            }
+
+            config.ratioMappings = ratioMappings;
+
+        } else if (this.currentMode === 'chord') {
+            const chordLines = this.chordsInput.value
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+
+            if (chordLines.length === 0) {
+                alert('Please enter at least one chord');
+                return null;
+            }
+
+            const chords = [];
+            for (const line of chordLines) {
+                const chord = parseChord(line);
+                if (chord === null) {
+                    alert(`Invalid chord format: ${line}\nExpected format: [0, 4, 7] : major`);
+                    return null;
+                }
+
+                // Validate intervals are within EDO range
+                const invalidIntervals = chord.intervals.filter(i => i < 0 || i >= edo);
+                if (invalidIntervals.length > 0) {
+                    alert(`Chord "${chord.name}" has intervals outside EDO range`);
+                    return null;
+                }
+
+                chords.push(chord);
+            }
+
+            config.chords = chords;
+            config.useInversions = this.inversionsToggle.checked;
+        }
+
+        return config;
+    }
+
+    /**
+     * Start the game with current configuration
+     */
+    startGame() {
+        const config = this.getConfig();
+        if (!config) return;
+
+        // Hide config screen, show game screen
+        this.configScreen.classList.remove('active');
+        this.gameScreen.classList.add('active');
+
+        // Initialize game
+        if (window.gameLogic) {
+            window.gameLogic.start(config);
+        }
+    }
+
+    /**
+     * Show config screen (for restarting)
+     */
+    show() {
+        this.configScreen.classList.add('active');
+        this.gameScreen.classList.remove('active');
+    }
+}

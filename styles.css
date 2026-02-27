@@ -1,0 +1,632 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    overflow: hidden;
+}
+
+/* Screen Management */
+.screen {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+}
+
+.screen.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Configuration Screen */
+.config-container {
+    background: #252525;
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.config-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #4CAF50;
+    font-size: 28px;
+}
+
+.config-section {
+    margin-bottom: 25px;
+}
+
+.config-section label {
+    display: block;
+    margin-bottom: 8px;
+    color: #b0b0b0;
+    font-size: 14px;
+}
+
+.config-section input[type="number"],
+.config-section input[type="text"],
+.config-section select,
+.config-section textarea {
+    width: 100%;
+    padding: 10px;
+    background: #1a1a1a;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.config-section textarea {
+    resize: vertical;
+    font-family: 'Courier New', monospace;
+}
+
+.help-text {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #808080;
+    font-style: italic;
+}
+
+/* Mode Tabs */
+.mode-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.mode-tab {
+    flex: 1;
+    padding: 10px;
+    background: #1a1a1a;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    color: #b0b0b0;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mode-tab:hover {
+    background: #2a2a2a;
+}
+
+.mode-tab.active {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.mode-content {
+    display: none;
+}
+
+.mode-content.active {
+    display: block;
+}
+
+/* Buttons */
+.primary-btn {
+    width: 100%;
+    padding: 14px;
+    background: #4CAF50;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.primary-btn:hover:not(:disabled) {
+    background: #45a049;
+    transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+    background: #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.secondary-btn {
+    padding: 10px 20px;
+    background: #404040;
+    border: none;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+    background: #505050;
+}
+
+/* Game Screen */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #252525;
+    border-bottom: 2px solid #404040;
+}
+
+.question-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#question-counter {
+    font-size: 14px;
+    color: #808080;
+}
+
+.task-display {
+    font-size: 20px;
+    font-weight: 600;
+    color: #4CAF50;
+}
+
+.timer-info {
+    display: flex;
+    gap: 30px;
+}
+
+.timer-item {
+    text-align: center;
+}
+
+.timer-label {
+    display: block;
+    font-size: 12px;
+    color: #808080;
+    margin-bottom: 4px;
+}
+
+.timer-item span:last-child {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    color: #4CAF50;
+    font-family: 'Courier New', monospace;
+}
+
+/* Piano Roll */
+.piano-roll-container {
+    flex: 1;
+    overflow: hidden;
+    background: #2b2b2b;
+    padding: 20px;
+    position: relative;
+}
+
+/* Zoom Sidebar - now just a drag handle overlay */
+.zoom-sidebar {
+    width: 50px;
+    background: transparent;
+    border: none;
+    cursor: ns-resize;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+}
+
+.zoom-sidebar:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.zoom-sidebar.dragging {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Sidebar labels container - now inside piano-roll-wrapper */
+.sidebar-labels {
+    display: flex;
+    flex-direction: column-reverse;
+    position: absolute;
+    width: 50px;
+    min-height: 100%;
+    top: 0;
+    left: 0;
+    background: #3a3a3a;
+    border-right: 1px solid #555;
+    z-index: 5;
+}
+
+/* Sidebar label styling */
+.sidebar-label {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #999;
+    font-family: 'Courier New', monospace;
+    pointer-events: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.sidebar-label-octave {
+    color: #ccc;
+    font-weight: 600;
+}
+
+/* Sidebar label positioning */
+.sidebar-label {
+    position: relative;
+    z-index: 2;
+}
+
+/* Lock cursor during zoom drag */
+body.zooming {
+    cursor: ns-resize !important;
+}
+
+body.zooming * {
+    cursor: ns-resize !important;
+}
+
+.piano-roll-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #3a3a3a;
+    border: 1px solid #555;
+    position: relative;
+}
+
+.piano-roll-wrapper.dragging {
+    user-select: none;
+}
+
+.piano-roll {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0;
+    position: relative;
+    min-height: 100%;
+    padding-left: 50px; /* Make room for sidebar */
+}
+
+/* Alternating quarter note shading overlay */
+.piano-roll::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50px; /* Start after the sidebar */
+    right: 0;
+    bottom: 0;
+    background-image:
+        /* Alternating quarter shading - dark/darker/dark/darker every 25% */
+        repeating-linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0.06) 0%,
+            rgba(0, 0, 0, 0.06) 25%,
+            rgba(0, 0, 0, 0.12) 25%,
+            rgba(0, 0, 0, 0.12) 50%
+        ),
+        /* 16th note grid lines - all same color */
+        linear-gradient(
+            to right,
+            #bbb 0,
+            #bbb 1px,
+            transparent 1px
+        );
+    background-size: 100% 100%, 6.25% 100%;
+    background-repeat: no-repeat, repeat-x;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.piano-key {
+    height: 40px;
+    background: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ccc;
+    position: relative;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.piano-key:hover {
+    background: #f0f0f0;
+}
+
+/* Black key styling (12-EDO pattern) */
+.piano-key.black-key {
+    background: #e8e8e8;
+    border-bottom: 1px solid #ddd;
+}
+
+.piano-key.black-key:hover {
+    background: #e0e0e0;
+}
+
+/* Hover-only labels mode - applies to sidebar */
+.piano-roll-container.hover-labels-only .sidebar-label {
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.piano-roll-container.hover-labels-only .zoom-sidebar:hover .sidebar-label,
+.piano-roll-container.hover-labels-only .piano-roll-wrapper:hover ~ .zoom-sidebar .sidebar-label {
+    opacity: 1;
+}
+
+/* Always show octave labels even in hover mode */
+.piano-roll-container.hover-labels-only .sidebar-label-octave {
+    opacity: 1;
+}
+
+/* Note rectangles (like DAW) */
+.note-rect {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: opacity 0.1s;
+    z-index: 3;
+}
+
+.note-rect.reference-note {
+    background: #64B5F6;
+    border: 1px solid #42A5F5;
+    box-shadow: 0 1px 3px rgba(33, 150, 243, 0.3);
+}
+
+.note-rect.user-placed {
+    background: #FFB74D;
+    border: 1px solid #FFA726;
+    box-shadow: 0 1px 3px rgba(255, 152, 0, 0.3);
+}
+
+.note-rect.correct {
+    background: #81C784;
+    border: 1px solid #66BB6A;
+    box-shadow: 0 1px 3px rgba(76, 175, 80, 0.4);
+    animation: correctPulse 0.5s ease-out;
+}
+
+.note-rect.incorrect {
+    background: #E57373;
+    border: 1px solid #EF5350;
+    box-shadow: 0 1px 3px rgba(244, 67, 54, 0.4);
+    animation: incorrectShake 0.5s ease-out;
+}
+
+.note-rect:hover {
+    opacity: 0.9;
+}
+
+@keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes incorrectShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Game Controls */
+.game-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: #252525;
+    border-top: 2px solid #404040;
+}
+
+.control-section {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+}
+
+.control-section .primary-btn {
+    flex: 2;
+}
+
+.control-section .secondary-btn {
+    flex: 1;
+}
+
+.toggle-section {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b0b0b0;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.toggle-label:hover {
+    color: #e0e0e0;
+}
+
+/* Feedback Overlay */
+.feedback-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.feedback-overlay.show {
+    display: flex;
+}
+
+.feedback-content {
+    text-align: center;
+}
+
+.feedback-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.feedback-message {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.feedback-overlay.correct .feedback-icon::before {
+    content: '✓';
+    color: #4CAF50;
+}
+
+.feedback-overlay.incorrect .feedback-icon::before {
+    content: '✗';
+    color: #F44336;
+}
+
+.feedback-overlay.correct .feedback-message {
+    color: #4CAF50;
+}
+
+.feedback-overlay.incorrect .feedback-message {
+    color: #F44336;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Results Screen */
+.results-container {
+    background: #252525;
+    border-radius: 12px;
+    padding: 50px;
+    max-width: 700px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.results-container h1 {
+    color: #4CAF50;
+    margin-bottom: 40px;
+    font-size: 32px;
+}
+
+.results-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.stat-item {
+    background: #1a1a1a;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #404040;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #808080;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: #4CAF50;
+    font-family: 'Courier New', monospace;
+}
+
+/* Scrollbar Styling */
+.piano-roll-wrapper::-webkit-scrollbar {
+    width: 12px;
+}
+
+.piano-roll-wrapper::-webkit-scrollbar-track {
+    background: #2b2b2b;
+}
+
+.piano-roll-wrapper::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 6px;
+}
+
+.piano-roll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .timer-info {
+        gap: 20px;
+    }
+
+    .results-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .config-container {
+        padding: 25px;
+    }
+}
